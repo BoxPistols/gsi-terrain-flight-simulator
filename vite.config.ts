@@ -36,6 +36,8 @@ export default defineConfig({
 		outDir: '../dist',
 		emptyOutDir: true,
 		target: 'esnext',
+		// 字幕を data: URL にすると、CSP（default-src 'self'）で <track> が読み込めなくなる
+		assetsInlineLimit: (filePath: string) => (filePath.endsWith('.vtt') ? false : undefined),
 		rollupOptions: {
 			input: {
 				index: 'app/index.html',

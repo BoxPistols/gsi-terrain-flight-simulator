@@ -23,7 +23,7 @@ pnpm dev        # http://localhost:5173
 | `pnpm preview` | ビルド結果をローカルで表示 |
 | `pnpm lint` / `pnpm type-check` / `pnpm format:check` | 静的検査 |
 | `pnpm test:ci` | ユニットテスト（Vitest） |
-| `pnpm test:e2e` | E2E テスト（Playwright・Chromium。ビルドしてから `vite preview` に対して実行。全ブラウザは `pnpm test:e2e:all-browsers`） |
+| `pnpm test:e2e` | E2E テスト（Playwright・Chromium。ビルドしてから `vite preview` に対して実行。WebGL を切った Chromium での代替表示と、SwiftShader での地図描画も確かめる。全ブラウザは `pnpm test:e2e:all-browsers`） |
 
 ## 構成
 
