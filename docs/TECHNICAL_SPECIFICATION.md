@@ -117,7 +117,7 @@
 
 ### 1. MapStyleManager
 
-**ファイル**: `example/modules/MapStyleManager.ts`
+**ファイル**: `app/modules/MapStyleManager.ts`
 
 **責務**: マップスタイルの管理と切り替え
 
@@ -166,7 +166,7 @@ interface MapStyle {
 
 ### 2. FlightController
 
-**ファイル**: `example/modules/FlightController.ts`
+**ファイル**: `app/modules/FlightController.ts`
 
 **責務**: フライトプランの実行とカメラ制御
 
@@ -216,7 +216,7 @@ export const easingFunctions = {
 
 ### 3. DroneModel
 
-**ファイル**: `example/modules/DroneModel.ts`
+**ファイル**: `app/modules/DroneModel.ts`
 
 **責務**: 3Dドローンモデルと物理シミュレーション
 
@@ -253,7 +253,7 @@ interface DronePhysicsState {
 
 ### 4. GameController
 
-**ファイル**: `example/modules/GameController.ts`
+**ファイル**: `app/modules/GameController.ts`
 
 **責務**: キーボード・ゲームパッド入力管理
 
@@ -301,7 +301,7 @@ private readonly params = {
 
 ### 5. FlightDataManager
 
-**ファイル**: `example/modules/FlightDataManager.ts`
+**ファイル**: `app/modules/FlightDataManager.ts`
 
 **責務**: フライトデータのインポート/エクスポート
 
@@ -550,11 +550,8 @@ pnpm dev
 # プロダクションビルド
 pnpm build
 
-# ライブラリビルド
-pnpm build:lib
-
 # テスト実行
-pnpm test
+pnpm test:ci
 
 # E2Eテスト
 pnpm test:e2e
@@ -570,12 +567,7 @@ pnpm format
 
 ```
 dist/
-├── terrain.js          # ライブラリ本体（UMD）
-├── terrain.d.ts        # TypeScript型定義
-└── terrain.js.map      # ソースマップ
-
-demo/
-├── index.html          # デモHTML
+├── index.html          # アプリHTML
 ├── assets/
 │   ├── index.[hash].js  # バンドルJS
 │   └── index.[hash].css # バンドルCSS

@@ -1,6 +1,6 @@
 {
-	"buildCommand": "pnpm install && pnpm build:example",
-	"outputDirectory": "demo",
+	"buildCommand": "pnpm build",
+	"outputDirectory": "dist",
 	"installCommand": "pnpm install",
 	"git": {
 		"deploymentEnabled": {

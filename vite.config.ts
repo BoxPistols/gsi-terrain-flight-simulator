@@ -7,7 +7,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
 export default defineConfig({
-	root: './example',
+	root: './app',
 	base: '/',
 	publicDir: false,
 	server: {
@@ -33,11 +33,12 @@ export default defineConfig({
 		},
 	},
 	build: {
-		outDir: '../demo',
+		outDir: '../dist',
+		emptyOutDir: true,
 		target: 'esnext',
 		rollupOptions: {
 			input: {
-				index: 'example/index.html',
+				index: 'app/index.html',
 			},
 		},
 	},
@@ -45,8 +46,8 @@ export default defineConfig({
 		{
 			name: 'copy-data-folder',
 			writeBundle() {
-				const sourceDir = join(__dirname, 'example', 'data')
-				const targetDir = join(__dirname, 'demo', 'data')
+				const sourceDir = join(__dirname, 'app', 'data')
+				const targetDir = join(__dirname, 'dist', 'data')
 
 				// ターゲットディレクトリを作成
 				mkdirSync(targetDir, { recursive: true })

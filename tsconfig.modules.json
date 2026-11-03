@@ -1,5 +1,5 @@
 {
-	"//": "本ブランチで追加した example/modules の型チェック専用。本体 tsconfig は src/terrain.ts のみ対象で example/ が未検査のため、新規コードだけでも型検査を CI に載せる。既存モジュール(DroneModel/MapStyleManager 等)には別途の型負債があり本ファイルの対象外（改善計画 Phase 2-6/2-7 で解消予定）。未使用変数検査は ESLint が担うため無効化。",
+	"//": "app/modules のうち型検査を通せるファイルの一覧。app/ 全体はまだ型エラーが残るため、通るファイルから順に CI の型検査に載せる。既存モジュール(DroneModel/MapStyleManager 等)には別途の型負債があり本ファイルの対象外（改善計画 Phase 2-6/2-7 で解消予定）。未使用変数検査は ESLint が担うため無効化。",
 	"compilerOptions": {
 		"target": "ESNext",
 		"module": "ESNext",
@@ -18,17 +18,17 @@
 		"noEmit": true
 	},
 	"files": [
-		"example/modules/elevation.ts",
-		"example/modules/device-profile.ts",
-		"example/modules/flight-plan-editor.ts",
-		"example/modules/PlanPanel.ts",
-		"example/modules/MobileHud.ts",
-		"example/modules/safe-storage.ts",
-		"example/modules/elevation.test.ts",
-		"example/modules/device-profile.test.ts",
-		"example/modules/flight-plan-editor.test.ts",
-		"example/modules/PlanPanel.test.ts",
-		"example/modules/MobileHud.test.ts",
-		"example/modules/safe-storage.test.ts"
+		"app/modules/elevation.ts",
+		"app/modules/device-profile.ts",
+		"app/modules/flight-plan-editor.ts",
+		"app/modules/PlanPanel.ts",
+		"app/modules/MobileHud.ts",
+		"app/modules/safe-storage.ts",
+		"app/modules/elevation.test.ts",
+		"app/modules/device-profile.test.ts",
+		"app/modules/flight-plan-editor.test.ts",
+		"app/modules/PlanPanel.test.ts",
+		"app/modules/MobileHud.test.ts",
+		"app/modules/safe-storage.test.ts"
 	]
 }

@@ -1,6 +1,6 @@
 import maplibregl, { RasterDEMSourceSpecification } from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
-import { useGsiTerrainSource } from '../src/terrain'
+import { useGsiTerrainSource } from 'maplibre-gl-gsi-terrain'
 
 // 1mメッシュ対応の高解像度地形ソース
 const highResTerrainSource = useGsiTerrainSource(maplibregl.addProtocol, {

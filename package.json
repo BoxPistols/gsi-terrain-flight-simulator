@@ -1,0 +1,52 @@
+{
+	"name": "gsi-terrain-flight-simulator",
+	"version": "0.0.0",
+	"private": true,
+	"license": "UNLICENSED",
+	"type": "module",
+	"packageManager": "pnpm@10.23.0",
+	"engines": {
+		"node": ">=18.0.0",
+		"pnpm": ">=9.0.0"
+	},
+	"scripts": {
+		"dev": "vite",
+		"generate:icons": "node scripts/generate-icons.mjs",
+		"build": "pnpm run generate:icons && vite build",
+		"preview": "vite preview",
+		"lint": "eslint src app",
+		"lint:fix": "eslint src app --fix",
+		"format": "prettier --write .",
+		"format:check": "prettier --check .",
+		"type-check": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.modules.json",
+		"test": "vitest",
+		"test:ci": "vitest run --coverage --coverage.provider=v8",
+		"test:e2e": "playwright test --project=chromium",
+		"test:e2e:all-browsers": "playwright test",
+		"ci:check": "pnpm lint && pnpm type-check && pnpm format:check && pnpm test:ci"
+	},
+	"dependencies": {
+		"mapbox-gl": "^3.16.0",
+		"maplibre-gl": "^5.13.0",
+		"maplibre-gl-gsi-terrain": "2.3.2"
+	},
+	"devDependencies": {
+		"@playwright/test": "1.56.1",
+		"@typescript-eslint/eslint-plugin": "^8.46.4",
+		"@typescript-eslint/parser": "^8.46.4",
+		"@vitest/coverage-v8": "^2.1.8",
+		"eslint": "^9.39.1",
+		"happy-dom": "^20.0.10",
+		"prettier": "3.6.2",
+		"sharp": "^0.34.5",
+		"typescript": "^5.9.3",
+		"vite": "^5.4.0",
+		"vitest": "^2.1.8"
+	},
+	"pnpm": {
+		"onlyBuiltDependencies": [
+			"esbuild",
+			"sharp"
+		]
+	}
+}

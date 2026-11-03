@@ -50,14 +50,14 @@
 
 ```bash
 # リポジトリのクローン
-git clone <repository-url>
-cd maplibre-gl-gsi-terrain
+git clone https://github.com/BoxPistols/gsi-terrain-flight-simulator.git
+cd gsi-terrain-flight-simulator
 
 # 依存関係のインストール
-npm install
+pnpm install
 
 # 開発サーバーの起動
-npm run dev
+pnpm dev
 
 # ブラウザで開く
 # http://localhost:5173
@@ -67,24 +67,24 @@ npm run dev
 
 ```bash
 # 開発サーバー
-npm run dev
+pnpm dev
 
 # プロダクションビルド
-npm run build
+pnpm build
 
 # ビルドのプレビュー
-npm run preview
+pnpm preview
 
 # コードフォーマット
-npm run format
+pnpm format
 
 # リント
-npm run lint
-npm run lint:fix
+pnpm lint
+pnpm lint:fix
 
 # テスト
-npm run test
-npm run test:e2e
+pnpm test:ci
+pnpm test:e2e
 ```
 
 ---
@@ -92,8 +92,8 @@ npm run test:e2e
 ## プロジェクト構造
 
 ```
-maplibre-gl-gsi-terrain/
-├── example/                    # メインアプリケーション
+gsi-terrain-flight-simulator/
+├── app/                    # メインアプリケーション
 │   ├── index.html             # エントリーポイント (HTML)
 │   ├── index.ts               # エントリーポイント (TypeScript)
 │   ├── favicon.svg            # アプリアイコン
@@ -108,9 +108,7 @@ maplibre-gl-gsi-terrain/
 │       ├── mt-fuji-flight-plan.json
 │       ├── tokyo-skytree-flight-plan.json
 │       └── kyoto-kinkakuji-flight-plan.json
-├── src/                       # ライブラリソース
-│   ├── terrain.ts             # 地形プロトコル
-│   ├── worker.ts              # Webワーカー
+├── src/
 │   └── data-import-export.ts  # データ処理
 ├── docs/                      # ドキュメント
 │   ├── USER_MANUAL.md         # ユーザーマニュアル
@@ -297,12 +295,12 @@ interface FlightPlanPhase {
 #### 2. ファイルを配置
 
 ```bash
-example/data/my-flight-plan.json
+app/data/my-flight-plan.json
 ```
 
 #### 3. ドロップダウンに追加
 
-`example/index.ts` の `flightPlanSelect` イベントリスナーを編集:
+`app/index.ts` の `flightPlanSelect` イベントリスナーを編集:
 
 ```typescript
 const fileMap: Record<string, string> = {
@@ -329,7 +327,7 @@ HTMLのドロップダウンにオプションを追加:
 
 #### ウェイポイントの色を変更
 
-`example/index.html` の `setupLayers()` 内:
+`app/index.html` の `setupLayers()` 内:
 
 ```typescript
 map.addLayer({
@@ -369,7 +367,7 @@ map.addLayer({
 #### ピッチ角度の調整
 
 ```typescript
-// example/index.ts の executeFlightPhase() 内
+// app/index.ts の executeFlightPhase() 内
 map.flyTo({
   center: [drone.longitude, drone.latitude],
   zoom: phase.zoom ?? 18,
@@ -396,7 +394,7 @@ map.flyTo({
 #### ログエントリの最大数
 
 ```typescript
-// example/index.ts の addFlightLog() 内
+// app/index.ts の addFlightLog() 内
 if (flightLog.length > 100) {  // 最大数を変更
   flightLog = flightLog.slice(-50)  // 保持する数を変更
 }
@@ -404,7 +402,7 @@ if (flightLog.length > 100) {  // 最大数を変更
 
 #### ログの色とスタイル
 
-`example/index.html` の CSS:
+`app/index.html` の CSS:
 
 ```css
 .log-entry-latest {
@@ -425,7 +423,7 @@ if (flightLog.length > 100) {  // 最大数を変更
 
 ```bash
 # ビルド
-npm run build
+pnpm build
 
 # Vercel CLIでデプロイ
 vercel --prod
@@ -435,9 +433,9 @@ vercel --prod
 
 ```bash
 # ビルド
-npm run build
+pnpm build
 
-# demo/ディレクトリをホスティングサービスにアップロード
+# dist/ディレクトリをホスティングサービスにアップロード
 # - Netlify
 # - GitHub Pages
 # - Cloudflare Pages
@@ -460,14 +458,14 @@ VITE_TERRAIN_URL=https://your-terrain-server.com/tiles
 
 #### ビルドエラー
 
-**問題**: `npm run build` でエラーが発生
+**問題**: `pnpm build` でエラーが発生
 
 **解決方法**:
 ```bash
 # node_modulesを削除して再インストール
 rm -rf node_modules package-lock.json
-npm install
-npm run build
+pnpm install
+pnpm build
 ```
 
 #### 型エラー
@@ -477,10 +475,10 @@ npm run build
 **解決方法**:
 ```bash
 # 型定義を確認
-npm run build  # tscが自動実行される
+pnpm build  # tscが自動実行される
 
 # 型定義ファイルを確認
-cat example/modules/types.ts
+cat app/modules/types.ts
 ```
 
 #### 地図が表示されない
@@ -513,7 +511,7 @@ console.log('ドローン位置:', drone)
 開発モードではソースマップが有効になっています:
 
 ```bash
-npm run dev
+pnpm dev
 # ブラウザの開発者ツールで元のTypeScriptコードを確認可能
 ```
 

@@ -13,8 +13,8 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
 // 定数定義
-const SOURCE_SVG = join(__dirname, '../example/apple-touch-icon.svg')
-const OUTPUT_PNG = join(__dirname, '../example/apple-touch-icon.png')
+const SOURCE_SVG = join(__dirname, '../app/apple-touch-icon.svg')
+const OUTPUT_PNG = join(__dirname, '../app/apple-touch-icon.png')
 const ICON_SIZE = 180
 
 async function generateIcon() {

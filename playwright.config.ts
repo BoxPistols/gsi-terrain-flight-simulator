@@ -13,13 +13,13 @@ export default defineConfig({
 	/* リトライ回数 */
 	retries: process.env.CI ? 2 : 0,
 	/* 並列ワーカー数 */
-	workers: process.env.CI ? 1 : undefined,
+	workers: process.env.CI ? 1 : 2,
 	/* レポーター */
-	reporter: 'html',
+	reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : 'list',
 	/* 共通設定 */
 	use: {
 		/* ベースURL */
-		baseURL: 'http://localhost:5173',
+		baseURL: 'http://localhost:4317',
 		/* スクリーンショット */
 		screenshot: 'only-on-failure',
 		/* ビデオ */
@@ -32,7 +32,7 @@ export default defineConfig({
 	projects: [
 		{
 			name: 'chromium',
-			use: { ...devices['Desktop Chrome'] },
+			use: { ...devices['Desktop Chrome'], viewport: { width: 1920, height: 1080 } },
 		},
 
 		{
@@ -58,8 +58,8 @@ export default defineConfig({
 
 	/* 開発サーバー */
 	webServer: {
-		command: 'pnpm dev',
-		url: 'http://localhost:5173',
+		command: 'pnpm build && pnpm preview --port 4317 --strictPort',
+		url: 'http://localhost:4317',
 		reuseExistingServer: !process.env.CI,
 		timeout: 120 * 1000,
 	},

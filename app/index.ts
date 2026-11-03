@@ -72,7 +72,7 @@ import {
 	type DroneObject,
 	type UnifiedFlightData,
 } from '../src/data-import-export'
-import { getGsiDemProtocolAction } from '../src/terrain.ts'
+import { getGsiDemProtocolAction } from 'maplibre-gl-gsi-terrain'
 
 // 新しいモジュールをインポート
 import { MapStyleManager } from './modules/MapStyleManager'

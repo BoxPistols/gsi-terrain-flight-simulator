@@ -1,0 +1,44 @@
+Copyright (c) 2025-2026 Ito Atsushi (BoxPistols). All rights reserved.
+
+This repository contains the 3D flight simulator written by Ito Atsushi
+(BoxPistols). It was moved here from BoxPistols/maplibre-gl-gsi-terrain.
+
+It does NOT cover third-party code and data, including the
+maplibre-gl-gsi-terrain library (by the mug-jp/maplibre-gl-gsi-terrain
+authors), which this project uses only as an npm dependency, and the commits
+in the git history that were authored by the upstream authors. See NOTICE.md.
+
+The source code is published on GitHub so that it can be viewed and
+referenced. Viewing the source on GitHub, as permitted by the GitHub Terms of
+Service, is allowed.
+
+No license is granted to use, copy, modify, merge, publish, distribute,
+sublicense, sell, or create derivative works of this software, in whole or in
+part, without prior written permission from the copyright holder.
+
+Third-party components and data remain under their own licenses and terms.
+
+Contact: https://asagiri-design.carrd.co/
+
+---
+
+Copyright (c) 2025-2026 Ito Atsushi (BoxPistols). All rights reserved.
+
+このリポジトリは、Ito Atsushi（BoxPistols）が作成した3Dフライトシミュレーター
+です。BoxPistols/maplibre-gl-gsi-terrain から移しました。
+
+第三者のコードとデータには適用しません。npm の依存として利用している
+maplibre-gl-gsi-terrain ライブラリ（mug-jp/maplibre-gl-gsi-terrain の作者による）
+と、git 履歴に残る上流の作者によるコミットの内容にも適用しません。NOTICE.md を参照
+してください。
+
+ソースコードは、閲覧・参照できるように GitHub で公開しています。
+GitHub 利用規約の範囲内で、GitHub 上のソースコードを閲覧することは自由です。
+
+著作権者の事前の書面による許可なく、本ソフトウェアの全部または一部を利用・複製・
+改変・結合・公開・配布・再許諾・販売すること、および派生物を作成することは
+許諾していません。
+
+第三者のコンポーネントとデータは、それぞれのライセンス・利用条件に従います。
+
+連絡先: https://asagiri-design.carrd.co/
