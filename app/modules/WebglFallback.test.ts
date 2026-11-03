@@ -1,8 +1,16 @@
 import { afterEach, describe, expect, test, vi } from 'vitest'
-import { FALLBACK_ID, HIGHLIGHTS, renderWebglFallback, VALUE_PROPOSITION } from './WebglFallback'
+import {
+	FALLBACK_ID,
+	HIGHLIGHTS,
+	removeWebglFallback,
+	renderWebglFallback,
+	VALUE_PROPOSITION,
+} from './WebglFallback'
 import { bootApp, watchContextLoss } from './boot-flow'
 import type { WebglFailure } from './webgl-support'
 
+const IPHONE =
+	'Mozilla/5.0 (iPhone; CPU iPhone OS 19_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/19.0 Mobile/15E148 Safari/604.1'
 const CHROME_MAC =
 	'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36'
 const media = { video: '/v.mp4', poster: '/p.jpg', captions: '/c.vtt' }
@@ -103,6 +111,47 @@ describe('renderWebglFallback', () => {
 		})
 		expect(root.textContent).not.toContain('chrome://settings/system')
 		expect(root.textContent).toContain('拡張機能')
+	})
+
+	test.each(['load-failed', 'unknown', 'context-lost', 'blocked'] as const)(
+		'%s では端末のせいにせず、ハードウェアアクセラレーションの手順も出さない',
+		kind => {
+			const root = renderWebglFallback({
+				failure: failure(kind),
+				media,
+				userAgent: CHROME_MAC,
+				reducedMotion: true,
+			})
+			expect(root.querySelector('.wgf-status-title')?.textContent).not.toContain('この環境では')
+			expect(root.textContent).not.toContain('chrome://settings/system')
+			expect(root.textContent).not.toContain('有効にしても安全です')
+			expect(root.querySelectorAll('.wgf-steps li').length).toBeGreaterThan(0)
+		}
+	)
+
+	test('Apple 端末ではロックダウンモードの解除を「安全」と言わず、信頼できるサイトに限る', () => {
+		const root = renderWebglFallback({
+			failure: failure('api-missing'),
+			media,
+			userAgent: IPHONE,
+			maxTouchPoints: 5,
+			reducedMotion: true,
+		})
+		expect(root.textContent).toContain('ロックダウンモード')
+		expect(root.textContent).not.toContain('安全です')
+		expect(root.textContent).toContain('信頼できるサイトだけ')
+	})
+
+	test('removeWebglFallback で案内を外し、アプリ本体を見せ直す', () => {
+		renderWebglFallback({
+			failure: failure('context-lost'),
+			media,
+			userAgent: CHROME_MAC,
+			reducedMotion: true,
+		})
+		removeWebglFallback()
+		expect(document.getElementById(FALLBACK_ID)).toBeNull()
+		expect(document.documentElement.dataset.webgl).toBeUndefined()
 	})
 
 	test('WebGL 2 が無く Mapbox GL を選んでいるときは切り替えボタンを出す', () => {
@@ -229,6 +278,13 @@ describe('bootApp', () => {
 })
 
 describe('watchContextLoss', () => {
+	// happy-dom の getter を vi.spyOn で差し替えると、元に戻したあと再帰して落ちるので、インスタンスに直接載せて外す
+	const stubVisibility = (get: () => DocumentVisibilityState) =>
+		Object.defineProperty(document, 'visibilityState', { get, configurable: true })
+	afterEach(() => {
+		delete (document as unknown as Record<string, unknown>).visibilityState
+	})
+
 	test('context が戻らなければ一定時間後に案内を出す', () => {
 		vi.useFakeTimers()
 		const show = vi.fn()
@@ -239,6 +295,63 @@ describe('watchContextLoss', () => {
 		expect(show).not.toHaveBeenCalled()
 		vi.advanceTimersByTime(1)
 		expect(show.mock.calls[0][0].kind).toBe('context-lost')
+		stop()
+	})
+
+	test('ページが隠れている間は時間を数えない', () => {
+		vi.useFakeTimers()
+		let visibility: DocumentVisibilityState = 'visible'
+		stubVisibility(() => visibility)
+		const show = vi.fn()
+		const stop = watchContextLoss(document, 1000, false, show)
+		const canvas = document.body.appendChild(document.createElement('canvas'))
+		canvas.dispatchEvent(new Event('webglcontextlost'))
+		vi.advanceTimersByTime(600)
+		visibility = 'hidden'
+		document.dispatchEvent(new Event('visibilitychange'))
+		vi.advanceTimersByTime(10_000)
+		expect(show).not.toHaveBeenCalled()
+		visibility = 'visible'
+		document.dispatchEvent(new Event('visibilitychange'))
+		vi.advanceTimersByTime(399)
+		expect(show).not.toHaveBeenCalled()
+		vi.advanceTimersByTime(1)
+		expect(show).toHaveBeenCalledTimes(1)
+		stop()
+	})
+
+	test('隠れている間に失っても、見えるまでは数え始めない', () => {
+		vi.useFakeTimers()
+		let visibility: DocumentVisibilityState = 'hidden'
+		stubVisibility(() => visibility)
+		const show = vi.fn()
+		const stop = watchContextLoss(document, 1000, false, show)
+		const canvas = document.body.appendChild(document.createElement('canvas'))
+		canvas.dispatchEvent(new Event('webglcontextlost'))
+		vi.advanceTimersByTime(5000)
+		expect(show).not.toHaveBeenCalled()
+		visibility = 'visible'
+		document.dispatchEvent(new Event('visibilitychange'))
+		vi.advanceTimersByTime(1000)
+		expect(show).toHaveBeenCalledTimes(1)
+		stop()
+	})
+
+	test('案内を出したあとで戻ったら、案内を外す', () => {
+		vi.useFakeTimers()
+		const show = vi.fn()
+		const hide = vi.fn()
+		const stop = watchContextLoss(document, 1000, false, show, hide)
+		const canvas = document.body.appendChild(document.createElement('canvas'))
+		canvas.dispatchEvent(new Event('webglcontextlost'))
+		vi.advanceTimersByTime(1000)
+		expect(show).toHaveBeenCalledTimes(1)
+		canvas.dispatchEvent(new Event('webglcontextrestored'))
+		expect(hide).toHaveBeenCalledTimes(1)
+		// もう一度失えば、また数え直す
+		canvas.dispatchEvent(new Event('webglcontextlost'))
+		vi.advanceTimersByTime(1000)
+		expect(show).toHaveBeenCalledTimes(2)
 		stop()
 	})
 

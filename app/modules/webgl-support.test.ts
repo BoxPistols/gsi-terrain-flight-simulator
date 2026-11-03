@@ -118,6 +118,12 @@ describe('diagnoseWebglFailure', () => {
 		[false, '', 'api-missing'],
 		[true, 'disabled by enterprise policy or commandline switch', 'disabled'],
 		[true, 'Web page caused context loss and was blocked', 'blocked'],
+		// CSP などの「was blocked」はブラウザの一時停止ではない
+		[
+			true,
+			'Refused to load the script because it was blocked by Content Security Policy',
+			'creation-failed',
+		],
 		[true, 'Could not create a WebGL context', 'creation-failed'],
 		[true, '', 'creation-failed'],
 	] as const)('apiPresent=%s, "%s" → %s', (apiPresent, statusMessage, kind) => {

@@ -11,6 +11,10 @@ import {
 	detectPlatform,
 	guideFor,
 	isSettingsIssue,
+	recoveryGuide,
+	safetyNote,
+	statusTitle,
+	type Guide,
 	type Line,
 	type WebglFailure,
 } from './webgl-support'
@@ -182,6 +186,36 @@ export function setupLazyPlayback(
 	io.observe(video)
 }
 
+function buildSteps(doc: Document, guide: Guide): HTMLElement {
+	const steps = el(doc, 'div', 'wgf-block')
+	steps.appendChild(el(doc, 'h3', undefined, '直し方'))
+	const ol = el(doc, 'ol', 'wgf-steps')
+	for (const line of guide.steps) {
+		const li = el(doc, 'li')
+		renderLine(doc, li, line)
+		ol.appendChild(li)
+	}
+	steps.appendChild(ol)
+	if (guide.verify) {
+		const p = el(doc, 'p', 'wgf-note')
+		p.appendChild(doc.createTextNode('確かめ方: '))
+		renderLine(doc, p, guide.verify)
+		steps.appendChild(p)
+	}
+	if (guide.note) {
+		const p = el(doc, 'p', 'wgf-note')
+		renderLine(doc, p, guide.note)
+		steps.appendChild(p)
+	}
+	return steps
+}
+
+/** 案内を外してアプリ本体を見せ直す。context が戻ったとき用 */
+export function removeWebglFallback(doc: Document = document): void {
+	doc.getElementById(FALLBACK_ID)?.remove()
+	delete doc.documentElement.dataset.webgl
+}
+
 export function renderWebglFallback(options: FallbackOptions): HTMLElement {
 	const doc = options.doc ?? document
 	const nav = typeof navigator !== 'undefined' ? navigator : undefined
@@ -208,13 +242,18 @@ export function renderWebglFallback(options: FallbackOptions): HTMLElement {
 	status.setAttribute('role', 'status')
 	status.appendChild(icon(doc, CUBE_OFF, 22))
 	const statusText = el(doc, 'div')
-	statusText.appendChild(el(doc, 'p', 'wgf-status-title', 'この環境では 3D 地図を表示できません'))
+	const guide = isSettingsIssue(failure.kind)
+		? guideFor(browser, platform)
+		: recoveryGuide(failure.kind)
+	statusText.appendChild(el(doc, 'p', 'wgf-status-title', statusTitle(failure.kind)))
 	statusText.appendChild(
 		el(
 			doc,
 			'p',
 			'wgf-status-body',
-			'代わりに、録画したデモと概要をご覧ください。直し方は下にあります。'
+			guide
+				? '代わりに、録画したデモと概要をご覧ください。直し方は下にあります。'
+				: '代わりに、録画したデモと概要をご覧ください。'
 		)
 	)
 	status.appendChild(statusText)
@@ -288,54 +327,14 @@ export function renderWebglFallback(options: FallbackOptions): HTMLElement {
 		help.appendChild(embedded)
 	}
 
-	if (isSettingsIssue(failure.kind)) {
-		const guide = guideFor(browser, platform)
-		const steps = el(doc, 'div', 'wgf-block')
-		steps.appendChild(el(doc, 'h3', undefined, '直し方'))
-		const ol = el(doc, 'ol', 'wgf-steps')
-		for (const line of guide.steps) {
-			const li = el(doc, 'li')
-			renderLine(doc, li, line)
-			ol.appendChild(li)
-		}
-		steps.appendChild(ol)
-		if (guide.verify) {
-			const p = el(doc, 'p', 'wgf-note')
-			p.appendChild(doc.createTextNode('確かめ方: '))
-			renderLine(doc, p, guide.verify)
-			steps.appendChild(p)
-		}
-		if (guide.note) {
-			const p = el(doc, 'p', 'wgf-note')
-			renderLine(doc, p, guide.note)
-			steps.appendChild(p)
-		}
-		help.appendChild(steps)
+	if (guide) help.appendChild(buildSteps(doc, guide))
 
+	if (isSettingsIssue(failure.kind)) {
+		const note = safetyNote(platform, browser)
 		const safety = el(doc, 'div', 'wgf-block')
-		safety.appendChild(el(doc, 'h3', undefined, '有効にしても安全です'))
-		safety.appendChild(
-			el(
-				doc,
-				'p',
-				undefined,
-				'WebGL は主要なブラウザに標準で入っている機能です。有効にしても、サイトが端末のファイルやほかのタブに触れることはありません。'
-			)
-		)
+		safety.appendChild(el(doc, 'h3', undefined, note.title))
+		safety.appendChild(el(doc, 'p', undefined, note.body))
 		help.appendChild(safety)
-	} else if (failure.kind === 'load-failed') {
-		const steps = el(doc, 'div', 'wgf-block')
-		steps.appendChild(el(doc, 'h3', undefined, '直し方'))
-		const ol = el(doc, 'ol', 'wgf-steps')
-		for (const text of [
-			'インターネットにつながっているか確かめる',
-			'広告ブロックなどの拡張機能を止めて、もう一度試す',
-			'会社のネットワークでは、別の回線（スマートフォンなど）で試す',
-		]) {
-			ol.appendChild(el(doc, 'li', undefined, text))
-		}
-		steps.appendChild(ol)
-		help.appendChild(steps)
 	}
 
 	const tech = el(doc, 'details', 'wgf-tech')

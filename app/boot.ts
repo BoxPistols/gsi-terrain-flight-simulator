@@ -5,7 +5,7 @@
 
 import './styles/webgl-fallback.css'
 import { bootApp } from './modules/boot-flow'
-import { renderWebglFallback } from './modules/WebglFallback'
+import { removeWebglFallback, renderWebglFallback } from './modules/WebglFallback'
 import { loadProviderConfig, saveProviderConfig } from './map-provider'
 import demoVideo from './media/flight-demo.mp4?url'
 import demoPoster from './media/flight-demo-poster.jpg?url'
@@ -25,4 +25,5 @@ void bootApp({
 				window.location.reload()
 			},
 		}),
+	hideFallback: () => removeWebglFallback(),
 })

@@ -155,8 +155,8 @@ function classifyStatus(apiPresent: boolean, detail: string): WebglFailureKind {
 	if (!apiPresent) return 'api-missing'
 	// Chrome: "disabled by enterprise policy or commandline switch"
 	if (/enterprise policy|commandline switch|webgl\.disabled/i.test(detail)) return 'disabled'
-	// Chrome: "Web page caused context loss and was blocked"
-	if (/caused context loss|was blocked/i.test(detail)) return 'blocked'
+	// Chrome: "Web page caused context loss and was blocked"。"was blocked" だけだと CSP などの文言にも当たるので前半で見る
+	if (/caused context loss/i.test(detail)) return 'blocked'
 	return 'creation-failed'
 }
 
@@ -339,6 +339,85 @@ export function guideFor(browser: BrowserKind, platform: PlatformKind): Guide {
 /** WebGL の設定で直る種類か。ネットワークや原因不明のときに GPU 設定の手順を出すと誤った案内になる */
 export function isSettingsIssue(kind: WebglFailureKind): boolean {
 	return kind === 'api-missing' || kind === 'disabled' || kind === 'creation-failed'
+}
+
+/** 画面上部の状態の知らせ。端末や設定のせいと言えるのは、設定で直る種類のときだけ */
+export function statusTitle(kind: WebglFailureKind): string {
+	switch (kind) {
+		case 'api-missing':
+		case 'disabled':
+		case 'creation-failed':
+			return 'この環境では 3D 地図を表示できません'
+		case 'webgl2-required':
+			return '選んでいる地図エンジンでは 3D 地図を表示できません'
+		case 'blocked':
+			return 'ブラウザが 3D 表示を一時的に止めています'
+		case 'context-lost':
+			return '表示の途中で 3D 地図が止まりました'
+		case 'load-failed':
+			return 'アプリを読み込めませんでした'
+		case 'unknown':
+			return '3D 地図を起動できませんでした'
+	}
+}
+
+/**
+ * 設定で直る種類以外の直し方。設定が正しくても起きるものに、ハードウェアアクセラレーションの手順は出さない。
+ * webgl2-required は切り替えボタンそのものが直し方なので手順を持たない
+ */
+export function recoveryGuide(kind: WebglFailureKind): Guide | null {
+	switch (kind) {
+		case 'blocked':
+			return {
+				steps: [['ブラウザを完全に終了して、開き直す'], ['このページをもう一度開く']],
+				note: ['何度も止まるときは、ブラウザと OS（グラフィックドライバ）を最新にしてください。'],
+			}
+		case 'context-lost':
+			return {
+				steps: [
+					['3D を使うほかのタブやアプリを閉じる'],
+					['「もう一度試す」を押して、ページを読み込み直す'],
+				],
+				note: ['何度も起きるときは、ブラウザを完全に終了して開き直してください。'],
+			}
+		case 'load-failed':
+			return {
+				steps: [
+					['インターネットにつながっているか確かめる'],
+					['広告ブロックなどの拡張機能を止めて、もう一度試す'],
+					['会社のネットワークでは、別の回線（スマートフォンなど）で試す'],
+				],
+			}
+		case 'unknown':
+			return {
+				steps: [
+					['「もう一度試す」を押して、ページを読み込み直す'],
+					['直らなければ、時間をおいて開き直す'],
+				],
+			}
+		default:
+			return null
+	}
+}
+
+/**
+ * 設定を変える前に読んでほしいこと。Apple 端末の手順はロックダウンモードの解除なので、
+ * 守りの機能を弱めることを「安全」とは言わず、解除してよい場面を限る
+ */
+export function safetyNote(
+	platform: PlatformKind,
+	browser: BrowserKind
+): { title: string; body: string } {
+	if (platform === 'ios' || browser === 'safari') {
+		return {
+			title: 'ロックダウンモードを解除する前に',
+			body: 'ロックダウンモードは、標的型の攻撃に備えてブラウザの機能を絞る仕組みです。解除するのは信頼できるサイトだけにしてください。解除しなくても、録画したデモで動きを確認できます。',
+		}
+	}
+	return {
+		title: '有効にしても安全です',
+		body: 'WebGL は主要なブラウザに標準で入っている機能です。有効にしても、サイトが端末のファイルやほかのタブに触れることはありません。',
+	}
 }
 
 /** 「なぜ使えないのか」の見立てを 1〜2 文で */
