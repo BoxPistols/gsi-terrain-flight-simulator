@@ -24,11 +24,16 @@
 		"app/modules/PlanPanel.ts",
 		"app/modules/MobileHud.ts",
 		"app/modules/safe-storage.ts",
+		"app/modules/webgl-support.ts",
+		"app/modules/WebglFallback.ts",
+		"app/modules/boot-flow.ts",
 		"app/modules/elevation.test.ts",
 		"app/modules/device-profile.test.ts",
 		"app/modules/flight-plan-editor.test.ts",
 		"app/modules/PlanPanel.test.ts",
 		"app/modules/MobileHud.test.ts",
-		"app/modules/safe-storage.test.ts"
+		"app/modules/safe-storage.test.ts",
+		"app/modules/webgl-support.test.ts",
+		"app/modules/WebglFallback.test.ts"
 	]
 }

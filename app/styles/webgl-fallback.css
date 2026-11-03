@@ -1,0 +1,367 @@
+/*
+ * 3D 地図を出せないときの画面。地図アプリの見た目（黒いマップ＋グラス UI）とは分けて、
+ * 読み物として落ち着いて読める不透明な紙面にする。ライト/ダークは別々に配色する。
+ */
+
+.wgf {
+	--wgf-bg: #f3f1ec;
+	--wgf-surface: #ffffff;
+	--wgf-border: #d6d1c6;
+	--wgf-text: #16181b;
+	--wgf-muted: #474d55;
+	--wgf-accent: #1f5fbf;
+	--wgf-accent-hover: #184c99;
+	--wgf-on-accent: #ffffff;
+	--wgf-check: #1d7a4f;
+	--wgf-status-bg: #fff3dc;
+	--wgf-status-border: #d9a441;
+	--wgf-status-text: #3f2c00;
+	--wgf-code-bg: #ece8df;
+	--wgf-focus: #1f5fbf;
+	--wgf-space-1: 4px;
+	--wgf-space-2: 8px;
+	--wgf-space-3: 12px;
+	--wgf-space-4: 16px;
+	--wgf-space-5: 24px;
+	--wgf-space-6: 32px;
+	--wgf-radius: 10px;
+	--wgf-tap: 44px;
+
+	position: fixed;
+	inset: 0;
+	z-index: 10001;
+	overflow-y: auto;
+	-webkit-overflow-scrolling: touch;
+	background: var(--wgf-bg);
+	color: var(--wgf-text);
+	font-family:
+		-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', 'Noto Sans JP', Roboto,
+		sans-serif;
+	font-size: 15px;
+	line-height: 1.7;
+	text-align: left;
+	color-scheme: light;
+}
+
+/* ダーク: 夜の地図を思わせる青みの黒。単なる反転ではなく、アクセントは明るめの青で文字は暗色 */
+@media (prefers-color-scheme: dark) {
+	.wgf {
+		--wgf-bg: #0e1318;
+		--wgf-surface: #161d24;
+		--wgf-border: #2c3742;
+		--wgf-text: #e8ecf0;
+		--wgf-muted: #aab4be;
+		--wgf-accent: #8ab8ff;
+		--wgf-accent-hover: #b0d0ff;
+		--wgf-on-accent: #0a1526;
+		--wgf-check: #6fd3a0;
+		--wgf-status-bg: #2a2214;
+		--wgf-status-border: #7a6030;
+		--wgf-status-text: #f4dca8;
+		--wgf-code-bg: #212a33;
+		--wgf-focus: #8ab8ff;
+		color-scheme: dark;
+	}
+}
+
+/* 案内を出している間、動かないアプリ本体（地図・操作パネル・トースト）は隠す */
+html[data-webgl='unavailable'] body > *:not(#webgl-fallback) {
+	display: none !important;
+}
+
+.wgf *,
+.wgf *::before,
+.wgf *::after {
+	box-sizing: border-box;
+}
+
+.wgf-inner {
+	max-width: 1120px;
+	margin: 0 auto;
+	padding: calc(var(--wgf-space-4) + env(safe-area-inset-top, 0px))
+		calc(var(--wgf-space-4) + env(safe-area-inset-right, 0px))
+		calc(var(--wgf-space-6) + env(safe-area-inset-bottom, 0px))
+		calc(var(--wgf-space-4) + env(safe-area-inset-left, 0px));
+}
+
+.wgf p,
+.wgf h1,
+.wgf h2,
+.wgf h3,
+.wgf ul,
+.wgf ol,
+.wgf figure {
+	margin: 0;
+}
+
+.wgf-status {
+	display: flex;
+	gap: var(--wgf-space-3);
+	align-items: flex-start;
+	padding: var(--wgf-space-3) var(--wgf-space-4);
+	border: 1px solid var(--wgf-status-border);
+	border-radius: var(--wgf-radius);
+	background: var(--wgf-status-bg);
+	color: var(--wgf-status-text);
+}
+
+.wgf-status svg {
+	flex: none;
+	margin-top: 2px;
+}
+
+.wgf-status-title {
+	font-weight: 700;
+}
+
+.wgf-status-body {
+	font-size: 14px;
+}
+
+.wgf-grid {
+	display: grid;
+	gap: var(--wgf-space-6);
+	margin-top: var(--wgf-space-5);
+}
+
+.wgf-title {
+	font-size: 22px;
+	line-height: 1.4;
+	font-weight: 700;
+	letter-spacing: 0.01em;
+	/* 「フラ/イト」のような語の途中での改行を避ける（対応ブラウザのみ。未対応でも崩れはしない） */
+	word-break: auto-phrase;
+	text-wrap: balance;
+}
+
+.wgf-demo {
+	margin-top: var(--wgf-space-4);
+}
+
+.wgf-video {
+	display: block;
+	width: 100%;
+	height: auto;
+	aspect-ratio: 16 / 9;
+	border: 1px solid var(--wgf-border);
+	border-radius: var(--wgf-radius);
+	background: #0e1318;
+}
+
+.wgf-demo figcaption {
+	margin-top: var(--wgf-space-2);
+	font-size: 13px;
+	color: var(--wgf-muted);
+}
+
+.wgf-highlights {
+	display: grid;
+	gap: var(--wgf-space-3);
+	margin-top: var(--wgf-space-5);
+	padding: 0;
+	list-style: none;
+}
+
+.wgf-highlights li {
+	display: flex;
+	gap: var(--wgf-space-2);
+	align-items: flex-start;
+}
+
+.wgf-highlights svg {
+	flex: none;
+	margin-top: 4px;
+	color: var(--wgf-check);
+}
+
+.wgf-actions {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wgf-space-2);
+	margin-top: var(--wgf-space-5);
+}
+
+.wgf-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--wgf-space-2);
+	min-height: var(--wgf-tap);
+	min-width: var(--wgf-tap);
+	padding: var(--wgf-space-2) var(--wgf-space-4);
+	border-radius: var(--wgf-radius);
+	font: inherit;
+	font-size: 15px;
+	font-weight: 600;
+	line-height: 1.3;
+	text-decoration: none;
+	cursor: pointer;
+	transition:
+		background-color 120ms ease,
+		border-color 120ms ease;
+}
+
+.wgf-btn-primary {
+	border: 1px solid var(--wgf-accent);
+	background: var(--wgf-accent);
+	color: var(--wgf-on-accent);
+}
+
+.wgf-btn-primary:hover {
+	background: var(--wgf-accent-hover);
+	border-color: var(--wgf-accent-hover);
+}
+
+.wgf-btn-secondary {
+	border: 1px solid var(--wgf-border);
+	background: var(--wgf-surface);
+	color: var(--wgf-text);
+}
+
+.wgf-btn-secondary:hover {
+	border-color: var(--wgf-accent);
+}
+
+.wgf-btn:focus-visible,
+.wgf-tech summary:focus-visible,
+.wgf-video:focus-visible {
+	outline: 3px solid var(--wgf-focus);
+	outline-offset: 2px;
+}
+
+.wgf-help {
+	display: grid;
+	gap: var(--wgf-space-4);
+	align-content: start;
+	align-self: start;
+	padding: var(--wgf-space-4);
+	border: 1px solid var(--wgf-border);
+	border-radius: var(--wgf-radius);
+	background: var(--wgf-surface);
+}
+
+.wgf-help-title {
+	font-size: 18px;
+	line-height: 1.4;
+	font-weight: 700;
+}
+
+.wgf-block h3 {
+	font-size: 15px;
+	font-weight: 700;
+	margin-bottom: var(--wgf-space-1);
+}
+
+.wgf-block .wgf-btn {
+	margin-top: var(--wgf-space-2);
+}
+
+.wgf-steps {
+	padding-left: 1.4em;
+}
+
+.wgf-steps li + li {
+	margin-top: var(--wgf-space-1);
+}
+
+.wgf-note {
+	margin-top: var(--wgf-space-2);
+	font-size: 14px;
+	color: var(--wgf-muted);
+}
+
+.wgf code {
+	padding: 1px 6px;
+	border-radius: 4px;
+	background: var(--wgf-code-bg);
+	font-family: 'SF Mono', 'JetBrains Mono', 'Roboto Mono', ui-monospace, monospace;
+	font-size: 0.92em;
+	user-select: all;
+	overflow-wrap: anywhere;
+}
+
+.wgf-tech {
+	font-size: 13px;
+	color: var(--wgf-muted);
+}
+
+.wgf-tech summary {
+	display: flex;
+	align-items: center;
+	min-height: var(--wgf-tap);
+	cursor: pointer;
+	border-radius: 6px;
+}
+
+.wgf-tech code {
+	display: block;
+	padding: var(--wgf-space-2);
+	user-select: text;
+}
+
+.wgf-visually-hidden {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	white-space: nowrap;
+}
+
+@media (min-width: 600px) {
+	.wgf-inner {
+		padding-left: calc(var(--wgf-space-5) + env(safe-area-inset-left, 0px));
+		padding-right: calc(var(--wgf-space-5) + env(safe-area-inset-right, 0px));
+	}
+
+	.wgf-title {
+		font-size: 26px;
+	}
+
+	.wgf-actions {
+		flex-direction: row;
+		flex-wrap: wrap;
+	}
+}
+
+@media (min-width: 960px) {
+	.wgf-inner {
+		padding-top: var(--wgf-space-6);
+	}
+
+	.wgf-grid {
+		grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+		gap: var(--wgf-space-6);
+	}
+
+	.wgf-help {
+		padding: var(--wgf-space-5);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.wgf-btn {
+		transition: none;
+	}
+}
+
+@media print {
+	.wgf {
+		position: static;
+		overflow: visible;
+		--wgf-bg: #ffffff;
+		--wgf-surface: #ffffff;
+		--wgf-text: #000000;
+		--wgf-muted: #333333;
+		color-scheme: light;
+	}
+
+	.wgf-actions,
+	.wgf-video {
+		display: none;
+	}
+
+	.wgf-block {
+		break-inside: avoid;
+	}
+}
