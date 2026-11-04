@@ -83,6 +83,7 @@ import { TouchController } from './modules/TouchController'
 import { DebugManager } from './modules/DebugManager'
 import { PlanPanel } from './modules/PlanPanel'
 import { MobileHud } from './modules/MobileHud'
+import { applyPrimaryFlightAction } from './modules/flight-actions'
 import type { FlightPlanData, FlightPlanPhase } from './modules/types'
 
 // サンプルデータの定義
@@ -488,6 +489,21 @@ const syncPlanPanel = () => {
 
 /** モバイルHUDへフライト実行状態を反映する */
 const syncHudFlightState = () => {
+	const actionState = {
+		active: flightPlanActive,
+		phaseIndex: currentFlightPhase,
+		totalPhases: currentFlightPlan.length,
+	}
+	applyPrimaryFlightAction(
+		document.getElementById('startFlightPlan'),
+		document.getElementById('pauseFlightPlan'),
+		actionState
+	)
+	applyPrimaryFlightAction(
+		document.getElementById('mobileStartFlightPlan'),
+		document.getElementById('mobilePauseFlightPlan'),
+		actionState
+	)
 	mobileHud?.setFlightState({
 		active: flightPlanActive,
 		phaseIndex:

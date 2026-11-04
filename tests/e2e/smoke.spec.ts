@@ -80,9 +80,14 @@ test.describe('PC', () => {
 
 		await page.locator('#startFlightPlan').dispatchEvent('click')
 		await expect(logEntry('を開始します')).toBeAttached()
+		// 開始と一時停止は同じ位置に一方だけ出る
+		await expect(page.locator('#startFlightPlan')).toBeHidden()
+		await expect(page.locator('#pauseFlightPlan')).toBeVisible()
 
 		await page.locator('#pauseFlightPlan').dispatchEvent('click')
 		await expect(logEntry('一時停止')).toBeAttached()
+		await expect(page.locator('#pauseFlightPlan')).toBeHidden()
+		await expect(page.locator('#startFlightPlan')).toBeVisible()
 
 		await page.locator('#startFlightPlan').dispatchEvent('click')
 		// 1 フェーズ目で止めた場合は先頭からの開始として記録されるため、どちらの文言も受け入れる
