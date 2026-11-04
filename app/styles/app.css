@@ -326,6 +326,8 @@
 }
 
 .plan-btn {
+	/* 下の ::after で押せる範囲を広げる基準。index.html の button 共通指定に頼らない */
+	position: relative;
 	min-width: 36px;
 	min-height: 36px;
 	margin: 0;
