@@ -14,7 +14,10 @@
 /* 既存パネルの器をモダン化（デスクトップのみ） */
 :root[data-device='desktop'] .flight-plan-export {
 	width: 360px;
-	max-height: calc(100vh - 120px);
+	/* パネルは bottom: 200px 起点で上へ伸びる。上端が画面外に出ると
+	   タイトルと開始ボタンが見えなくなるため、下端位置・上下 padding(16px×2)・
+	   上の余白を差し引く（max-height は content-box なので padding を含まない） */
+	max-height: calc(100vh - 200px - 32px - var(--space-4));
 	overflow-y: auto;
 	background: var(--surface-1);
 	-webkit-backdrop-filter: blur(var(--surface-blur));
@@ -26,11 +29,170 @@
 	font-family: var(--font-ui);
 }
 
+/* ダーク時はフォーム部品（select のリスト・数値スピナー）も暗色で描かせる */
+@media (prefers-color-scheme: dark) {
+	.flight-plan-export,
+	.mobile-flight-plan-modal {
+		color-scheme: dark;
+	}
+}
+
 /* 折りたたみ時は幅(360px + padding/border ≈ 394px)を完全に画面外へ退避させる
    （既定の -280px だと 80px、-390px でも約4px はみ出すため余裕をもって -420px）。
    :not(.visible) 限定なので .visible 時の right:0 は維持される */
 :root[data-device='desktop'] .flight-plan-export:not(.visible) {
 	right: -420px;
+}
+
+/* ============================================================
+   フライトプラン操作ボタン（PC パネル / モバイルモーダル共通）
+   主: 開始・再開・一時停止（同じ位置に1つだけ） / 副: 手動操作 /
+   控えめ: ファイルの入出力。色相ではなく塗り・線・サイズで階層を作る
+   ============================================================ */
+
+.fp-select-label {
+	font-size: var(--font-min);
+	font-weight: 600;
+	color: var(--text-2);
+}
+
+.fp-select {
+	box-sizing: border-box;
+	width: 100%;
+	min-height: 36px;
+	padding: 0 var(--space-2);
+	border: 1px solid var(--field-border);
+	border-radius: var(--radius-sm);
+	background: var(--field-bg);
+	color: var(--text-1);
+	font-family: var(--font-ui);
+	font-size: 13px;
+}
+
+.fp-mobile-select {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-1);
+	margin-bottom: var(--space-4);
+}
+
+.fp-mobile-select .fp-select {
+	min-height: var(--tap);
+	font-size: 16px; /* iOS は 16px 未満だとフォーカス時に画面を拡大する */
+}
+
+.fp-actions {
+	display: grid;
+	grid-template-columns: 3fr 2fr;
+	gap: var(--space-2);
+	margin-top: var(--space-1);
+}
+
+.fp-file-actions {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: var(--space-2);
+}
+
+.flight-plan-buttons .fp-action,
+.mobile-flight-plan-buttons .fp-action {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--space-2);
+	min-width: 0;
+	min-height: var(--tap);
+	margin: 0;
+	padding: 0 var(--space-3);
+	border: 1px solid transparent;
+	border-radius: var(--radius-sm);
+	font-family: var(--font-ui);
+	font-size: 14px;
+	font-weight: 700;
+	line-height: 1.2;
+	white-space: nowrap;
+	cursor: pointer;
+	box-shadow: none;
+	transform: none;
+	-webkit-backdrop-filter: none;
+	backdrop-filter: none;
+	transition:
+		background-color var(--motion-fast) var(--ease),
+		border-color var(--motion-fast) var(--ease),
+		color var(--motion-fast) var(--ease);
+}
+
+.flight-plan-buttons .fp-action[hidden],
+.mobile-flight-plan-buttons .fp-action[hidden] {
+	display: none;
+}
+
+.fp-icon {
+	width: 18px;
+	height: 18px;
+	flex-shrink: 0;
+}
+
+.flight-plan-buttons .fp-action-primary,
+.mobile-flight-plan-buttons .fp-action-primary {
+	background: var(--action-primary-bg);
+	color: var(--action-primary-fg);
+}
+
+.flight-plan-buttons .fp-action-primary:hover,
+.mobile-flight-plan-buttons .fp-action-primary:hover {
+	background: var(--action-primary-bg-hover);
+	transform: none;
+	box-shadow: none;
+}
+
+.flight-plan-buttons .fp-action-secondary,
+.mobile-flight-plan-buttons .fp-action-secondary {
+	background: var(--action-secondary-bg);
+	border-color: var(--action-secondary-border);
+	color: var(--action-secondary-fg);
+}
+
+.flight-plan-buttons .fp-action-secondary:hover,
+.mobile-flight-plan-buttons .fp-action-secondary:hover {
+	background: var(--action-secondary-bg-hover);
+	transform: none;
+	box-shadow: none;
+}
+
+.flight-plan-buttons .fp-action-tertiary,
+.mobile-flight-plan-buttons .fp-action-tertiary {
+	background: transparent;
+	color: var(--action-tertiary-fg);
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.flight-plan-buttons .fp-action-tertiary .fp-icon,
+.mobile-flight-plan-buttons .fp-action-tertiary .fp-icon {
+	width: 16px;
+	height: 16px;
+}
+
+.flight-plan-buttons .fp-action-tertiary:hover,
+.mobile-flight-plan-buttons .fp-action-tertiary:hover {
+	background: var(--action-tertiary-bg-hover);
+	color: var(--text-1);
+	transform: none;
+	box-shadow: none;
+}
+
+/* モバイルは親指で押すため主操作を全幅にし、副操作も1行ずつ並べる */
+.mobile-flight-plan-buttons .fp-action-primary,
+.mobile-flight-plan-buttons .fp-action-secondary {
+	width: 100%;
+	font-size: 16px;
+}
+
+.mobile-flight-plan-buttons .fp-file-actions {
+	margin-top: var(--space-1);
+	padding-top: var(--space-2);
+	border-top: 1px solid var(--surface-border);
 }
 
 .plan-panel {
@@ -65,6 +227,13 @@
 	font-size: var(--font-min);
 	color: var(--text-2);
 	font-variant-numeric: tabular-nums;
+}
+
+.plan-hint {
+	margin: 0;
+	font-size: var(--font-min);
+	line-height: 1.5;
+	color: var(--text-2);
 }
 
 /* タイムライン: 幅 ∝ 所要時間。実行中フェーズを強調 */
@@ -153,20 +322,32 @@
 
 .plan-row-actions {
 	display: inline-flex;
-	gap: 2px;
+	gap: var(--space-2);
 }
 
 .plan-btn {
-	min-width: 24px;
-	min-height: 24px;
-	padding: 2px 6px;
-	border: 1px solid var(--surface-border);
-	border-radius: 6px;
+	/* 下の ::after で押せる範囲を広げる基準。index.html の button 共通指定に頼らない */
+	position: relative;
+	min-width: 36px;
+	min-height: 36px;
+	margin: 0;
+	padding: 0 var(--space-2);
+	border: 1px solid var(--action-secondary-border);
+	border-radius: var(--radius-sm);
 	background: transparent;
-	color: var(--text-2);
-	font-size: 11px;
+	color: var(--text-1);
+	font-size: 14px;
 	cursor: pointer;
+	-webkit-backdrop-filter: none;
+	backdrop-filter: none;
 	transition: all var(--motion-fast) var(--ease);
+}
+
+/* 見た目は 36px に抑え、押せる範囲は前後 4px ずつ広げて 44px を確保する */
+.plan-row-actions .plan-btn::after {
+	content: '';
+	position: absolute;
+	inset: -4px;
 }
 
 .plan-btn:hover {
@@ -176,61 +357,66 @@
 
 .plan-btn-danger:hover {
 	background: color-mix(in srgb, var(--c-danger) 18%, transparent);
-	color: var(--c-danger);
+	color: var(--text-1);
+	border-color: var(--c-danger);
 }
 
 .plan-btn-add {
 	width: 100%;
-	min-height: 30px;
+	min-height: var(--tap);
 	margin-top: var(--space-2);
 	font-weight: 600;
-	color: var(--c-accent);
-	border: 1px dashed color-mix(in srgb, var(--c-accent) 45%, transparent);
+	color: var(--text-accent);
+	border: 1px dashed var(--action-secondary-border);
 }
 
+/* 2 列: 経度|緯度 / 対地|海抜 / 時間|標高。3 列だと 360px 幅で数値が切れる */
 .plan-row-grid {
 	display: grid;
-	grid-template-columns: repeat(3, 1fr);
-	gap: var(--space-1) var(--space-2);
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: var(--space-2) var(--space-3);
+	margin-top: var(--space-2);
 }
 
 .plan-field {
 	display: flex;
 	flex-direction: column;
-	gap: 1px;
-	font-size: 10px;
+	gap: 2px;
+	min-width: 0;
 }
 
 .plan-field-label {
 	color: var(--text-2);
-	font-size: 9px;
-	letter-spacing: 0.02em;
+	font-size: var(--font-min);
+	line-height: 1.4;
 }
 
 .plan-input {
+	box-sizing: border-box;
 	width: 100%;
-	padding: 3px 4px;
-	border: 1px solid var(--surface-border);
-	border-radius: 4px;
-	background: color-mix(in srgb, var(--surface-1) 60%, transparent);
+	min-height: 36px;
+	margin: 0;
+	padding: 0 var(--space-2);
+	border: 1px solid var(--field-border);
+	border-radius: 6px;
+	background: var(--field-bg);
 	color: var(--text-1);
 	font-family: var(--font-mono);
-	font-size: var(--font-min);
+	font-size: 13px;
 	font-variant-numeric: tabular-nums;
 }
 
-.plan-input-agl {
-	border-color: color-mix(in srgb, var(--c-alt) 45%, transparent);
+.plan-input:hover {
+	border-color: var(--action-secondary-border);
 }
 
-.plan-input-asl {
-	border-color: color-mix(in srgb, var(--c-info) 45%, transparent);
-}
-
-.plan-ground {
-	padding: 3px 4px;
-	color: var(--c-ground);
-	font-size: var(--font-min);
+/* 標高は地形から取得する読み取り専用の値。入力欄と見分けられるよう枠を付けない */
+.plan-field-readonly .plan-ground {
+	display: flex;
+	align-items: center;
+	min-height: 36px;
+	color: var(--text-1);
+	font-size: 13px;
 }
 
 /* ============================================================

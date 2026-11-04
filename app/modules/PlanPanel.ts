@@ -101,6 +101,14 @@ export class PlanPanel {
 		header.appendChild(el('div', 'plan-header-title', 'ウェイポイント'))
 		this.headerStats = el('div', 'plan-stats')
 		header.appendChild(this.headerStats)
+		// 対地/海抜の2欄は連動している。入力欄の色分けだけでは伝わらないため文で示す
+		header.appendChild(
+			el(
+				'p',
+				'plan-hint',
+				'高度は対地・海抜のどちらでも入力できます。もう一方は地表の標高から自動で計算します。'
+			)
+		)
 
 		this.timeline = el('div', 'plan-timeline')
 		this.timeline.setAttribute('role', 'img')
@@ -281,7 +289,7 @@ export class PlanPanel {
 		// これにより連続編集で兄弟座標を巻き戻さない（データ破壊防止）。
 		grid.appendChild(
 			field(
-				'経度',
+				'経度 [°]',
 				numInput('plan-input plan-input-lng', p.position[0], 0.0001, `WP${i + 1} 経度`, v => {
 					const cur = this.phases[i]
 					this.applyEdit(
@@ -293,7 +301,7 @@ export class PlanPanel {
 		)
 		grid.appendChild(
 			field(
-				'緯度',
+				'緯度 [°]',
 				numInput('plan-input plan-input-lat', p.position[1], 0.0001, `WP${i + 1} 緯度`, v => {
 					const cur = this.phases[i]
 					this.applyEdit(
@@ -357,8 +365,11 @@ export class PlanPanel {
 				)
 			)
 		)
-		const groundRead = el('span', 'plan-ground ui-mono', `${elev.ground.toFixed(1)}`)
-		grid.appendChild(field('標高 [m]', groundRead))
+		// 読み取り専用値は <label> で包まない（入力欄と誤認させない・支援技術にも欄と伝えない）
+		const groundWrap = el('div', 'plan-field plan-field-readonly')
+		groundWrap.appendChild(el('span', 'plan-field-label', '地表標高 [m]（自動）'))
+		groundWrap.appendChild(el('span', 'plan-ground ui-mono', `${elev.ground.toFixed(1)}`))
+		grid.appendChild(groundWrap)
 
 		row.append(head, grid)
 		return row

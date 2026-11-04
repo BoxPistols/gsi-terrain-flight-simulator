@@ -43,6 +43,21 @@ describe('PlanPanel 描画', () => {
 		expect(agl.value).toBe('150')
 		expect(row1.querySelector('.plan-ground')!.textContent).toBe('100.0')
 	})
+
+	test('地表標高は入力欄ではなく読み取り専用のテキストで、label に包まれない', () => {
+		const { container, panel } = mount(() => 100)
+		panel.setPlan('p', plan())
+		const ground = container.querySelector('[data-testid="plan-row-0"] .plan-ground')!
+		expect(ground.tagName).toBe('SPAN')
+		expect(ground.closest('label')).toBeNull()
+		expect(ground.closest('.plan-field-readonly')).not.toBeNull()
+	})
+
+	test('対地と海抜が連動することをヘッダの文で説明する', () => {
+		const { container, panel } = mount()
+		panel.setPlan('p', plan())
+		expect(container.querySelector('.plan-hint')!.textContent).toContain('自動で計算')
+	})
 })
 
 describe('PlanPanel 編集（CRUD）', () => {

@@ -41,6 +41,24 @@
 	--text-1: rgba(17, 20, 24, 0.92);
 	--text-2: rgba(17, 20, 24, 0.64);
 	--text-on-accent: #ffffff;
+	--surface-solid: #ffffff; /* 地図が透けると困るモーダル用 */
+	--text-accent: #1a56b8; /* リンク・追加ボタンなど文字として使うアクセント */
+	--focus-ring: #1c5fc4;
+
+	/* --- 操作ボタンの階層（主 / 副 / 控えめ）と入力欄 ---
+	   パネルは半透明で地図が透けるため、文字色は背景が白でも黒でも
+	   4.5:1 を割らない値にしている。色相は役割ではなく階層を示すためだけに使う */
+	--action-primary-bg: #1c5fc4;
+	--action-primary-bg-hover: #174ea3;
+	--action-primary-fg: #ffffff;
+	--action-secondary-bg: rgba(17, 20, 24, 0.05);
+	--action-secondary-bg-hover: rgba(17, 20, 24, 0.1);
+	--action-secondary-border: rgba(17, 20, 24, 0.28);
+	--action-secondary-fg: var(--text-1);
+	--action-tertiary-fg: var(--text-2);
+	--action-tertiary-bg-hover: rgba(17, 20, 24, 0.07);
+	--field-bg: rgba(255, 255, 255, 0.92);
+	--field-border: rgba(17, 20, 24, 0.24);
 
 	/* --- 間隔・形状 --- */
 	--space-1: 4px;
@@ -88,6 +106,23 @@
 		--surface-border: rgba(255, 255, 255, 0.1);
 		--text-1: rgba(236, 240, 245, 0.95);
 		--text-2: rgba(236, 240, 245, 0.62);
+		--surface-solid: #161a20;
+		--text-accent: #8cbcff;
+		--focus-ring: #8cbcff;
+
+		/* ダークは明るい塗りに暗い文字を載せる。淡色の塗りに同系色の文字を重ねると
+		   暗い背景の上で文字が沈むため、ライトの反転にはしない */
+		--action-primary-bg: #7ab0ff;
+		--action-primary-bg-hover: #9cc4ff;
+		--action-primary-fg: #0a1424;
+		--action-secondary-bg: rgba(255, 255, 255, 0.07);
+		--action-secondary-bg-hover: rgba(255, 255, 255, 0.13);
+		--action-secondary-border: rgba(255, 255, 255, 0.26);
+		--action-secondary-fg: var(--text-1);
+		--action-tertiary-fg: var(--text-2);
+		--action-tertiary-bg-hover: rgba(255, 255, 255, 0.09);
+		--field-bg: rgba(8, 10, 14, 0.55);
+		--field-border: rgba(255, 255, 255, 0.2);
 		--shadow-1: 0 4px 16px rgba(0, 0, 0, 0.5);
 		--shadow-2: 0 8px 32px rgba(0, 0, 0, 0.6);
 	}
@@ -136,6 +171,6 @@ button:focus-visible,
 select:focus-visible,
 input:focus-visible,
 [tabindex]:focus-visible {
-	outline: 2px solid var(--c-accent);
+	outline: 2px solid var(--focus-ring);
 	outline-offset: 2px;
 }
